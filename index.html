@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KarParts360 - Product Fitment & Specification</title>
+  <style>
+    body {
+      font-family: Calibri, sans-serif;
+      background-color: #fff;
+      color: #333;
+      padding: 2rem;
+    }
+    header {
+      background-color: #FFD700;
+      padding: 1rem;
+      font-size: 1.5rem;
+      font-weight: bold;
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    .search-section-wrapper {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    .search-section {
+      flex: 1;
+      padding: 1rem;
+      background-color: #fff9cc;
+      border: 1px solid #ffd700;
+      border-radius: 8px;
+      box-shadow: 2px 2px 8px rgba(0,0,0,0.1);
+    }
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: bold;
+    }
+    input {
+      width: 100%;
+      padding: 0.5rem;
+      margin-bottom: 0.5rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    button {
+      background-color: #FFD700;
+      color: #000;
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .results {
+      margin-top: 2rem;
+      background-color: #fff9cc;
+      padding: 1rem;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.05);
+    }
+    .section-label {
+      font-size: 1.2rem;
+      margin-top: 1rem;
+      font-weight: bold;
+    }
+    .horizontal-section {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 2rem;
+    }
+    .horizontal-section > div {
+      flex: 1 1 300px;
+    }
+  </style>
+</head>
+<body>
+  <header>KarParts360 - Product Fitment & Specification</header>
+
+  <div class="search-section-wrapper">
+    <div class="search-section">
+      <label for="vin">Search by VIN</label>
+      <input type="text" id="vin" placeholder="Enter VIN...">
+      <button onclick="searchVIN()">Search VIN</button>
+    </div>
+
+    <div class="search-section">
+      <label for="oem">Search by OEM Number</label>
+      <input type="text" id="oem" placeholder="Enter OEM Number...">
+      <button onclick="searchOEM()">Search OEM</button>
+    </div>
+
+    <div class="search-section">
+      <label for="partslink">Search by Partslink Number</label>
+      <input type="text" id="partslink" placeholder="Enter Partslink Number...">
+      <button onclick="searchPartslink()">Search Partslink</button>
+    </div>
+  </div>
+
+  <div class="results" id="results"></div>
+
+  <script>
+    function searchVIN() {
+      const vinInput = document.getElementById('vin');
+      const vin = vinInput.value.trim();
+      const results = document.getElementById('results');
+      results.innerHTML = '';
+      if (vin.length === 17) {
+        fetch(`https://vpic.nhtsa.dot.gov/api/vehicles/DecodeVin/${vin}?format=json`)
+          .then(res => res.json())
+          .then(data => {
+            vinInput.value = '';
+            const get = (label) => {
+              const found = data.Results.find(r => r.Variable === label);
+              return found ? found.Value : 'N/A';
+            };
+
+            results.innerHTML = `
+              <div class="section-label">🔍 Basic Vehicle Information</div>
+              <p><strong>VIN:</strong> ${vin}</p>
+              <p><strong>Make:</strong> ${get('Make')}</p>
+              <p><strong>Model:</strong> ${get('Model')}</p>
+              <p><strong>Trim:</strong> ${get('Trim')}</p>
+              <p><strong>Model Year:</strong> ${get('Model Year')}</p>
+              <p><strong>Body Style:</strong> ${get('Body Style')}</p>
+              <p><strong>Engine:</strong> ${get('Engine Model')}</p>
+              <p><strong>Fuel Type:</strong> ${get('Fuel Type - Primary')}</p>
+              <p><strong>Drive Type:</strong> ${get('Drive Type')}</p>
+              <p><strong>Assembly Plant:</strong> ${get('Plant City')}</p>
+            `;
+          });
+      }
+    }
+
+    function searchOEM() {
+      const oemInput = document.getElementById('oem');
+      const oem = oemInput.value.trim().toUpperCase();
+      fetch('OEM_Partslink_Info_All_Makes.json')
+        .then(res => res.json())
+        .then(data => {
+          const match = data.find(p => p["OEM Number"] === oem);
+          if (match) {
+            document.getElementById('results').innerHTML = formatPartResult(match);
+          } else {
+            document.getElementById('results').innerHTML = `<p>No results found for OEM: ${oem}</p>`;
+          }
+          oemInput.value = '';
+        });
+    }
+
+    function searchPartslink() {
+      const partslinkInput = document.getElementById('partslink');
+      const partslink = partslinkInput.value.trim().toUpperCase();
+      fetch('OEM_Partslink_Info_All_Makes.json')
+        .then(res => res.json())
+        .then(data => {
+          const match = data.find(p => p["Partslink Number"] === partslink);
+          if (match) {
+            document.getElementById('results').innerHTML = formatPartResult(match);
+          } else {
+            document.getElementById('results').innerHTML = `<p>No results found for Partslink: ${partslink}</p>`;
+          }
+          partslinkInput.value = '';
+        });
+    }
+
+    function formatPartResult(part) {
+      return `
+        <div class="horizontal-section">
+          <div>
+            <div class="section-label">🔧 Part Summary</div>
+            <p><strong>PartsLink Number:</strong> ${part["Partslink Number"]}</p>
+            <p><strong>Part Type:</strong> ${part["Part Name"]}</p>
+            <p><strong>Position:</strong> ${part["Position"]}</p>
+            <p><strong>OEM Style Replacement:</strong> Yes</p>
+            <p><strong>OEM Number Reference:</strong> ${part["OEM Number"]}</p>
+          </div>
+          <div>
+            <div class="section-label">🚗 Compatible Vehicle Applications</div>
+            <p><strong>Make:</strong> ${part["Make"]}</p>
+            <p><strong>Model:</strong> ${part["Model"]}</p>
+            <p><strong>Years Compatible:</strong> ${part["Year"]}</p>
+            <p><strong>Position on Vehicle:</strong> ${part["Position"]}</p>
+          </div>
+          <div>
+            <div class="section-label">🛠️ Typical Features</div>
+            <p><strong>Dimension:</strong> ${part["Dimensions"]}</p>
+            <p><strong>Weight:</strong> ${part["Weight"]}</p>
+            <p><strong>Bulbs Included:</strong> ${part["Bulb Included"]}</p>
+            <p><strong>Type of Bulb:</strong> ${part["Bulb Type"] || "N/A"}</p>
+            <p><strong>Certification:</strong> ${part["Certification"]}</p>
+            <p><strong>Material:</strong> ${part["Material"]}</p>
+            <p><strong>Type of Lens:</strong> ${part["Type of Lens"] || "N/A"}</p>
+            <p><strong>Finish:</strong> ${part["Finish"]}</p>
+          </div>
+        </div>
+      `;
+    }
+  </script>
+</body>
+</html>
