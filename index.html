@@ -130,8 +130,9 @@
     <table id="partResult">
       <thead>
         <tr>
-          <th>OEM</th>
-          <th>Partslink</th>
+          <th>OEM Number</th>
+          <th>Partslink Number</th>
+          <th>Part Type</th>
           <th>Dimensions (in)</th>
           <th>Weight (lbs)</th>
           <th>Bulb Included</th>
@@ -142,7 +143,6 @@
           <th>Certification</th>
           <th>Position</th>
           <th>Note</th>
-          <th>Part Type</th>
         </tr>
       </thead>
       <tbody>
@@ -192,7 +192,7 @@
       document.getElementById(inputId).value = "";
 
       try {
-        const res = await fetch("oem_partslink_data.json");  // Ensure this is correct path to JSON data
+        const res = await fetch("oem_partslink_data.json");  // Ensure this is the correct path to JSON data
         const data = await res.json();
 
         const results = data.filter(item => item[type].toLowerCase() === value);
@@ -209,6 +209,7 @@
           row.innerHTML = `
             <td>${p.oem}</td>
             <td>${p.partslink}</td>
+            <td>${p.part_type}</td>
             <td>${p.dimensions}</td>
             <td>${p.weight}</td>
             <td>${p.bulb_included}</td>
@@ -219,7 +220,6 @@
             <td>${p.certification}</td>
             <td>${p.position}</td>
             <td>${p.note}</td>
-            <td>${p.part_type}</td>
           `;
           tbody.appendChild(row);
         });
