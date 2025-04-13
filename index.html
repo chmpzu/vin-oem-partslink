@@ -1,284 +1,183 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>KarParts360 - Product Fitment & Specification</title>
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Product Fitment and Specification</title>
   <style>
     body {
-      font-family: Calibri, sans-serif;
-      background-color: #fff;
+      font-family: Arial, sans-serif;
+      background-color: #fff8dc;
       color: #333;
-      padding: 2rem;
+      padding: 20px;
     }
-    header {
-      font-family: Calibri, sans-serif;
-      background-color: #FFD700;
-      padding: 1rem;
-      font-size: 1.5rem;
-      font-weight: bold;
+
+    h1 {
+      color: #d4af37;
       text-align: center;
-      margin-bottom: 2rem;
     }
-    .search-section-wrapper {
+
+    .search-container {
       display: flex;
-      gap: 1rem;
-      margin-bottom: 2rem;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 30px;
+      flex-wrap: wrap;
     }
-    .search-section {
-      flex: 1;
-      padding: 1rem;
-      background-color: #fff9cc;
-      border: 1px solid #ffd700;
-      border-radius: 8px;
-      box-shadow: 2px 2px 8px rgba(0,0,0,0.1);
-      position: relative;
-    }
-    input {
-      width: calc(100% - 40px);
-      padding: 0.5rem;
-      margin-bottom: 0.5rem;
+
+    .search-group {
+      display: flex;
+      align-items: center;
       border: 1px solid #ccc;
-      border-radius: 4px;
-      font-family: Calibri, sans-serif;
+      border-radius: 6px;
+      overflow: hidden;
+      background-color: #fff;
     }
-    .search-icon {
-      position: absolute;
-      right: 10px;
-      top: 50%;
-      transform: translateY(-50%);
-      font-size: 1.2rem;
-      color: #FFD700;
+
+    .search-group input {
+      border: none;
+      padding: 10px;
+      width: 200px;
+      outline: none;
+      font-size: 16px;
+    }
+
+    .search-group button {
+      background-color: #f1c40f;
+      border: none;
+      padding: 10px 14px;
       cursor: pointer;
     }
-    .results {
-      margin-top: 2rem;
-      background-color: #fff9cc;
-      padding: 1rem;
-      border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.05);
-      font-family: Calibri, sans-serif;
+
+    .search-group button:hover {
+      background-color: #d4af37;
     }
-    .section-label {
-      font-size: 1.2rem;
-      margin-top: 1rem;
-      font-weight: bold;
+
+    .search-group button svg {
+      width: 16px;
+      height: 16px;
+      fill: #fff;
     }
+
+    .result-box {
+      background-color: #fffdf0;
+      border: 1px solid #eee;
+      padding: 15px;
+      margin-bottom: 30px;
+      font-size: 16px;
+      border-radius: 6px;
+    }
+
     table {
       width: 100%;
       border-collapse: collapse;
-      margin-top: 1rem;
+      margin-top: 10px;
+      background-color: #fffef3;
+      font-family: Arial, sans-serif;
+      color: #333;
     }
+
     th, td {
-      padding: 0.5rem;
-      text-align: left;
       border: 1px solid #ddd;
+      padding: 10px;
+      text-align: center;
     }
+
     th {
-      background-color: #FFD700;
+      background-color: #fff2aa;
+      font-weight: bold;
     }
-    .horizontal-section {
-      display: flex;
-      gap: 2rem;
-      margin-bottom: 1rem;
+
+    td {
+      background-color: #fff;
     }
   </style>
 </head>
 <body>
-  <header>KarParts360 - Product Fitment & Specification</header>
+  <h1>Product Fitment and Specification</h1>
 
-  <div class="search-section-wrapper">
-    <div class="search-section">
-      <input type="text" id="vin" placeholder="Enter VIN..." oninput="searchVIN(event)" onkeydown="handleKeyDown(event, 'vin')">
-      <i class="fas fa-search search-icon" onclick="searchVIN()"></i>
+  <div class="search-container">
+    <div class="search-group">
+      <input type="text" id="oemInput" placeholder="Enter OEM">
+      <button onclick="searchOEMPartslink('oem')">
+        <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16a6.471 6.471 0 0 0 4.23-1.57l.27.28v.79l5 5L20.5 19l-5-5zm-6 0C8 14 6 12 6 9.5S8 5 10.5 5 15 7 15 9.5 13 14 10.5 14z"/></svg>
+      </button>
     </div>
 
-    <div class="search-section">
-      <input type="text" id="oem" placeholder="Enter OEM Number..." oninput="searchOEM(event)" onkeydown="handleKeyDown(event, 'oem')">
-      <i class="fas fa-search search-icon" onclick="searchOEM()"></i>
-    </div>
-
-    <div class="search-section">
-      <input type="text" id="partslink" placeholder="Enter Partslink Number..." oninput="searchPartslink(event)" onkeydown="handleKeyDown(event, 'partslink')">
-      <i class="fas fa-search search-icon" onclick="searchPartslink()"></i>
+    <div class="search-group">
+      <input type="text" id="partslinkInput" placeholder="Enter Partslink">
+      <button onclick="searchOEMPartslink('partslink')">
+        <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16a6.471 6.471 0 0 0 4.23-1.57l.27.28v.79l5 5L20.5 19l-5-5zm-6 0C8 14 6 12 6 9.5S8 5 10.5 5 15 7 15 9.5 13 14 10.5 14z"/></svg>
+      </button>
     </div>
   </div>
 
-  <div class="results" id="results"></div>
+  <div class="result-box">
+    <table id="partResult">
+      <thead>
+        <tr>
+          <th>OEM</th>
+          <th>Partslink</th>
+          <th>Dimensions (in)</th>
+          <th>Weight (lbs)</th>
+          <th>Bulb Included</th>
+          <th>Bulb Type</th>
+          <th>Material</th>
+          <th>Color</th>
+          <th>Finish</th>
+          <th>Certification</th>
+          <th>Position</th>
+          <th>Note</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td colspan="12" style="text-align:center;">Part results will appear here.</td></tr>
+      </tbody>
+    </table>
+  </div>
 
   <script>
-    function searchVIN() {
-      const vinInput = document.getElementById('vin');
-      const vin = vinInput.value.trim();
-      const results = document.getElementById('results');
-      results.innerHTML = '';
-      if (vin.length === 17) {
-        fetch(`https://vpic.nhtsa.dot.gov/api/vehicles/DecodeVin/${vin}?format=json`)
-          .then(res => res.json())
-          .then(data => {
-            vinInput.value = '';
-            const get = (label) => {
-              const found = data.Results.find(r => r.Variable === label);
-              return found ? found.Value : 'N/A';
-            };
+    async function searchOEMPartslink(type) {
+      const inputId = type === 'oem' ? 'oemInput' : 'partslinkInput';
+      const value = document.getElementById(inputId).value.trim().toLowerCase();
+      if (!value) return;
+      document.getElementById(inputId).value = "";
 
-            results.innerHTML = `
-              <div class="section-label">🔍 Basic Vehicle Information</div>
-              <p><strong>VIN:</strong> ${vin}</p>
-              <p><strong>Make:</strong> ${get('Make')}</p>
-              <p><strong>Model:</strong> ${get('Model')}</p>
-              <p><strong>Trim:</strong> ${get('Trim')}</p>
-              <p><strong>Model Year:</strong> ${get('Model Year')}</p>
-              <p><strong>Body Style:</strong> ${get('Body Style')}</p>
-              <p><strong>Engine:</strong> ${get('Engine Model')}</p>
-              <p><strong>Fuel Type:</strong> ${get('Fuel Type - Primary')}</p>
-              <p><strong>Drive Type:</strong> ${get('Drive Type')}</p>
-              <p><strong>Assembly Plant:</strong> ${get('Plant City')}</p>
-            `;
-          });
-      }
-    }
+      try {
+        const res = await fetch("oem_partslink_data.json");  // Make sure this is a correct path for your JSON data
+        const data = await res.json();
 
-    function searchOEM() {
-      const oemInput = document.getElementById('oem');
-      const oem = oemInput.value.trim().toUpperCase();
-      fetch('OEM_Partslink_Info_All_Makes.json')
-        .then(res => res.json())
-        .then(data => {
-          const match = data.find(p => p["OEM Number"] === oem);
-          if (match) {
-            document.getElementById('results').innerHTML = formatPartResult(match);
-          } else {
-            document.getElementById('results').innerHTML = `<p>No results found for OEM: ${oem}</p>`;
-          }
-          oemInput.value = '';
-        });
-    }
+        const results = data.filter(item => item[type].toLowerCase() === value);
+        const tbody = document.querySelector("#partResult tbody");
+        tbody.innerHTML = "";
 
-    function searchPartslink() {
-      const partslinkInput = document.getElementById('partslink');
-      const partslink = partslinkInput.value.trim().toUpperCase();
-      fetch('OEM_Partslink_Info_All_Makes.json')
-        .then(res => res.json())
-        .then(data => {
-          const match = data.find(p => p["Partslink Number"] === partslink);
-          if (match) {
-            document.getElementById('results').innerHTML = formatPartResult(match);
-          } else {
-            document.getElementById('results').innerHTML = `<p>No results found for Partslink: ${partslink}</p>`;
-          }
-          partslinkInput.value = '';
-        });
-    }
-
-    function formatPartResult(part) {
-      return `
-        <div class="horizontal-section">
-          <div>
-            <div class="section-label">🔧 Part Information</div>
-            <table>
-              <tr>
-                <th>PartsLink Number</th>
-                <td>${part["Partslink Number"]}</td>
-              </tr>
-              <tr>
-                <th>Part Type</th>
-                <td>${part["Part Name"]}</td>
-              </tr>
-              <tr>
-                <th>Position</th>
-                <td>${part["Position"]}</td>
-              </tr>
-              <tr>
-                <th>OEM Style Replacement</th>
-                <td>Yes</td>
-              </tr>
-              <tr>
-                <th>OEM Number Reference</th>
-                <td>${part["OEM Number"]}</td>
-              </tr>
-            </table>
-          </div>
-          <div>
-            <div class="section-label">🚗 Compatible Vehicle Applications</div>
-            <table>
-              <tr>
-                <th>Make</th>
-                <td>${part["Make"]}</td>
-              </tr>
-              <tr>
-                <th>Model</th>
-                <td>${part["Model"]}</td>
-              </tr>
-              <tr>
-                <th>Years Compatible</th>
-                <td>${part["Year"]}</td>
-              </tr>
-              <tr>
-                <th>Position on Vehicle</th>
-                <td>${part["Position"]}</td>
-              </tr>
-            </table>
-          </div>
-          <div>
-            <div class="section-label">🛠️ Typical Features</div>
-            <table>
-              <tr>
-                <th>Dimensions (inches)</th>
-                <td>${part["Dimensions"]}</td>
-              </tr>
-              <tr>
-                <th>Weight (lbs)</th>
-                <td>${part["Weight"]}</td>
-              </tr>
-              <tr>
-                <th>Bulbs Included</th>
-                <td>${part["Bulb Included"]}</td>
-              </tr>
-              <tr>
-                <th>Type of Bulb</th>
-                <td>${part["Bulb Type"] || "N/A"}</td>
-              </tr>
-              <tr>
-                <th>Material</th>
-                <td>${part["Material"]}</td>
-              </tr>
-              <tr>
-                <th>Color</th>
-                <td>${part["Color"]}</td>
-              </tr>
-              <tr>
-                <th>Finish</th>
-                <td>${part["Finish"]}</td>
-              </tr>
-              <tr>
-                <th>Certification</th>
-                <td>${part["Certification"]}</td>
-              </tr>
-              <tr>
-                <th>Position</th>
-                <td>${part["Position"]}</td>
-              </tr>
-              <tr>
-                <th>Note</th>
-                <td>${part["Type of Lens"] || "Lens type or other description available"}</td>
-              </tr>
-            </table>
-          </div>
-        </div>
-      `;
-    }
-
-    function handleKeyDown(event, searchType) {
-      if (event.key === 'Enter') {
-        if (searchType === 'vin') {
-          searchVIN();
-        } else if (searchType === 'oem') {
-          searchOEM();
-        } else if (searchType === 'partslink') {
-          searchPartslink();
+        if (results.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="12" style="text-align:center;">No results found.</td></tr>`;
+          return;
         }
+
+        results.forEach(p => {
+          const row = document.createElement("tr");
+          row.innerHTML = `
+            <td>${p.oem}</td>
+            <td>${p.partslink}</td>
+            <td>${p.dimensions}</td>
+            <td>${p.weight}</td>
+            <td>${p.bulb_included}</td>
+            <td>${p.bulb_type}</td>
+            <td>${p.material}</td>
+            <td>${p.color}</td>
+            <td>${p.finish}</td>
+            <td>${p.certification}</td>
+            <td>${p.position}</td>
+            <td>${p.note}</td>
+          `;
+          tbody.appendChild(row);
+        });
+
+      } catch (err) {
+        alert("Error loading parts data.");
+        console.error(err);
       }
     }
   </script>
