@@ -99,7 +99,7 @@
   <div class="search-container">
     <!-- VIN Search -->
     <div class="search-group">
-      <input type="text" id="vinInput" placeholder="Enter VIN">
+      <input type="text" id="vinInput" placeholder="Enter VIN" onkeydown="handleKey(event, 'vin')">
       <button onclick="searchByVIN()">
         <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16a6.471 6.471 0 0 0 4.23-1.57l.27.28v.79l5 5L20.5 19l-5-5zm-6 0C8 14 6 12 6 9.5S8 5 10.5 5 15 7 15 9.5 13 14 10.5 14z"/></svg>
       </button>
@@ -107,7 +107,7 @@
 
     <!-- OEM Search -->
     <div class="search-group">
-      <input type="text" id="oemInput" placeholder="Enter OEM">
+      <input type="text" id="oemInput" placeholder="Enter OEM" onkeydown="handleKey(event, 'oem')">
       <button onclick="searchOEMPartslink('oem')">
         <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16a6.471 6.471 0 0 0 4.23-1.57l.27.28v.79l5 5L20.5 19l-5-5zm-6 0C8 14 6 12 6 9.5S8 5 10.5 5 15 7 15 9.5 13 14 10.5 14z"/></svg>
       </button>
@@ -115,7 +115,7 @@
 
     <!-- Partslink Search -->
     <div class="search-group">
-      <input type="text" id="partslinkInput" placeholder="Enter Partslink">
+      <input type="text" id="partslinkInput" placeholder="Enter Partslink" onkeydown="handleKey(event, 'partslink')">
       <button onclick="searchOEMPartslink('partslink')">
         <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16a6.471 6.471 0 0 0 4.23-1.57l.27.28v.79l5 5L20.5 19l-5-5zm-6 0C8 14 6 12 6 9.5S8 5 10.5 5 15 7 15 9.5 13 14 10.5 14z"/></svg>
       </button>
@@ -151,7 +151,14 @@
   </div>
 
   <script>
-    // VIN Search Functionality
+    function handleKey(e, type) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        if (type === 'vin') searchByVIN();
+        else searchOEMPartslink(type);
+      }
+    }
+
     async function searchByVIN() {
       const vin = document.getElementById("vinInput").value.trim();
       if (vin.length !== 17) {
@@ -177,13 +184,16 @@
 <b>GVWR:</b> ${info.GVWR || 'N/A'}
         `;
         document.getElementById("vehicleResult").innerHTML = displayText;
+
+        // Clear part results
+        const tbody = document.querySelector("#partResult tbody");
+        tbody.innerHTML = `<tr><td colspan="12" style="text-align:center;">Part results will appear here.</td></tr>`;
       } catch (err) {
         document.getElementById("vehicleResult").textContent = "Error decoding VIN.";
         console.error(err);
       }
     }
 
-    // OEM and Partslink Search Functionality
     async function searchOEMPartslink(type) {
       const inputId = type === 'oem' ? 'oemInput' : 'partslinkInput';
       const value = document.getElementById(inputId).value.trim().toLowerCase();
@@ -191,37 +201,37 @@
       document.getElementById(inputId).value = "";
 
       try {
-        const res = await fetch("oem_partslink_data.json");  // Ensure this is correct path to JSON data
+        const res = await fetch("oem_partslink_data.json"); // adjust path as needed
         const data = await res.json();
 
-        const results = data.filter(item => item[type].toLowerCase() === value);
+        const result = data.find(item => item[type].toLowerCase() === value);
         const tbody = document.querySelector("#partResult tbody");
         tbody.innerHTML = "";
 
-        if (results.length === 0) {
+        if (!result) {
           tbody.innerHTML = `<tr><td colspan="12" style="text-align:center;">No results found.</td></tr>`;
           return;
         }
 
-        results.forEach(p => {
-          const row = document.createElement("tr");
-          row.innerHTML = `
-            <td>${p.oem}</td>
-            <td>${p.partslink}</td>
-            <td>${p.dimensions}</td>
-            <td>${p.weight}</td>
-            <td>${p.bulb_included}</td>
-            <td>${p.bulb_type}</td>
-            <td>${p.material}</td>
-            <td>${p.color}</td>
-            <td>${p.finish}</td>
-            <td>${p.certification}</td>
-            <td>${p.position}</td>
-            <td>${p.note}</td>
-          `;
-          tbody.appendChild(row);
-        });
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${result.oem}</td>
+          <td>${result.partslink}</td>
+          <td>${result.dimensions}</td>
+          <td>${result.weight}</td>
+          <td>${result.bulb_included}</td>
+          <td>${result.bulb_type}</td>
+          <td>${result.material}</td>
+          <td>${result.color}</td>
+          <td>${result.finish}</td>
+          <td>${result.certification}</td>
+          <td>${result.position}</td>
+          <td>${result.note}</td>
+        `;
+        tbody.appendChild(row);
 
+        // Clear VIN result
+        document.getElementById("vehicleResult").innerHTML = "VIN results will appear here.";
       } catch (err) {
         alert("Error loading parts data.");
         console.error(err);
