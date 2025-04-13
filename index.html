@@ -161,6 +161,9 @@
       }
       document.getElementById("vinInput").value = "";
 
+      // Clear VIN result box
+      document.getElementById("vehicleResult").innerHTML = "";
+
       // Clear the part result table
       const tbody = document.querySelector("#partResult tbody");
       tbody.innerHTML = "<tr><td colspan='13' style='text-align:center;'>Part results will appear here.</td></tr>";
@@ -195,12 +198,17 @@
       if (!value) return;
       document.getElementById(inputId).value = "";
 
+      // Clear VIN result
+      document.getElementById("vehicleResult").innerHTML = "VIN results will appear here.";
+
+      const tbody = document.querySelector("#partResult tbody");
+      tbody.innerHTML = "<tr><td colspan='13' style='text-align:center;'>Searching...</td></tr>";
+
       try {
-        const res = await fetch("oem_partslink_data.json");  // Ensure this is the correct path to JSON data
+        const res = await fetch("oem_partslink_data.json");  // Make sure this path is correct
         const data = await res.json();
 
         const results = data.filter(item => item[type].toLowerCase() === value);
-        const tbody = document.querySelector("#partResult tbody");
         tbody.innerHTML = "";
 
         if (results.length === 0) {
@@ -229,7 +237,7 @@
         });
 
       } catch (err) {
-        alert("Error loading parts data.");
+        tbody.innerHTML = `<tr><td colspan="13" style="text-align:center;">Error loading parts data.</td></tr>`;
         console.error(err);
       }
     }
