@@ -97,6 +97,15 @@
   <h1>Product Fitment and Specification</h1>
 
   <div class="search-container">
+    <!-- VIN Search -->
+    <div class="search-group">
+      <input type="text" id="vinInput" placeholder="Enter VIN">
+      <button onclick="searchByVIN()">
+        <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16a6.471 6.471 0 0 0 4.23-1.57l.27.28v.79l5 5L20.5 19l-5-5zm-6 0C8 14 6 12 6 9.5S8 5 10.5 5 15 7 15 9.5 13 14 10.5 14z"/></svg>
+      </button>
+    </div>
+
+    <!-- OEM Search -->
     <div class="search-group">
       <input type="text" id="oemInput" placeholder="Enter OEM">
       <button onclick="searchOEMPartslink('oem')">
@@ -104,6 +113,7 @@
       </button>
     </div>
 
+    <!-- Partslink Search -->
     <div class="search-group">
       <input type="text" id="partslinkInput" placeholder="Enter Partslink">
       <button onclick="searchOEMPartslink('partslink')">
@@ -112,6 +122,10 @@
     </div>
   </div>
 
+  <!-- Vehicle Info Result Box -->
+  <div class="result-box" id="vehicleResult">VIN results will appear here.</div>
+
+  <!-- Parts Info Result Box with Table -->
   <div class="result-box">
     <table id="partResult">
       <thead>
@@ -137,6 +151,39 @@
   </div>
 
   <script>
+    // VIN Search Functionality
+    async function searchByVIN() {
+      const vin = document.getElementById("vinInput").value.trim();
+      if (vin.length !== 17) {
+        alert("VIN must be 17 characters.");
+        return;
+      }
+      document.getElementById("vinInput").value = "";
+
+      try {
+        const res = await fetch(`https://vpic.nhtsa.dot.gov/api/vehicles/decodevinvaluesextended/${vin}?format=json`);
+        const data = await res.json();
+        const info = data.Results[0];
+
+        const displayText = `
+<b>Make:</b> ${info.Make}<br>
+<b>Model:</b> ${info.Model}<br>
+<b>Year:</b> ${info.ModelYear}<br>
+<b>Body:</b> ${info.BodyClass}<br>
+<b>Trim:</b> ${info.Trim}<br>
+<b>Engine:</b> ${info.EngineModel || 'N/A'} (${info.EngineCylinders || '?'} Cyl)<br>
+<b>Fuel Type:</b> ${info.FuelTypePrimary}<br>
+<b>Drive Type:</b> ${info.DriveType}<br>
+<b>GVWR:</b> ${info.GVWR || 'N/A'}
+        `;
+        document.getElementById("vehicleResult").innerHTML = displayText;
+      } catch (err) {
+        document.getElementById("vehicleResult").textContent = "Error decoding VIN.";
+        console.error(err);
+      }
+    }
+
+    // OEM and Partslink Search Functionality
     async function searchOEMPartslink(type) {
       const inputId = type === 'oem' ? 'oemInput' : 'partslinkInput';
       const value = document.getElementById(inputId).value.trim().toLowerCase();
@@ -144,7 +191,7 @@
       document.getElementById(inputId).value = "";
 
       try {
-        const res = await fetch("oem_partslink_data.json");  // Make sure this is a correct path for your JSON data
+        const res = await fetch("oem_partslink_data.json");  // Ensure this is correct path to JSON data
         const data = await res.json();
 
         const results = data.filter(item => item[type].toLowerCase() === value);
