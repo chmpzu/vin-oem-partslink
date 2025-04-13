@@ -65,13 +65,23 @@
       margin-top: 1rem;
       font-weight: bold;
     }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+    }
+    th, td {
+      padding: 0.5rem;
+      text-align: left;
+      border: 1px solid #ddd;
+    }
+    th {
+      background-color: #FFD700;
+    }
     .horizontal-section {
       display: flex;
-      flex-wrap: wrap;
       gap: 2rem;
-    }
-    .horizontal-section > div {
-      flex: 1 1 300px;
+      margin-bottom: 1rem;
     }
   </style>
 </head>
@@ -164,101 +174,99 @@
 
     function formatPartResult(part) {
       return `
-        <table style="width: 100%; border-collapse: collapse;">
-          <thead>
-            <tr style="background-color: #FFD700; text-align: left;">
-              <th colspan="2" style="padding: 0.5rem;">🔧 Part Information</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td><strong>PartsLink Number:</strong></td>
-              <td>${part["Partslink Number"]}</td>
-            </tr>
-            <tr>
-              <td><strong>Part Type:</strong></td>
-              <td>${part["Part Name"]}</td>
-            </tr>
-            <tr>
-              <td><strong>Position:</strong></td>
-              <td>${part["Position"]}</td>
-            </tr>
-            <tr>
-              <td><strong>OEM Style Replacement:</strong></td>
-              <td>Yes</td>
-            </tr>
-            <tr>
-              <td><strong>OEM Number Reference:</strong></td>
-              <td>${part["OEM Number"]}</td>
-            </tr>
-          </tbody>
-        </table>
-        <table style="width: 100%; border-collapse: collapse; margin-top: 1rem;">
-          <thead>
-            <tr style="background-color: #FFD700; text-align: left;">
-              <th colspan="2" style="padding: 0.5rem;">🚗 Compatible Vehicle Applications</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td><strong>Make:</strong></td>
-              <td>${part["Make"]}</td>
-            </tr>
-            <tr>
-              <td><strong>Model:</strong></td>
-              <td>${part["Model"]}</td>
-            </tr>
-            <tr>
-              <td><strong>Years Compatible:</strong></td>
-              <td>${part["Year"]}</td>
-            </tr>
-            <tr>
-              <td><strong>Position on Vehicle:</strong></td>
-              <td>${part["Position"]}</td>
-            </tr>
-          </tbody>
-        </table>
-        <table style="width: 100%; border-collapse: collapse; margin-top: 1rem;">
-          <thead>
-            <tr style="background-color: #FFD700; text-align: left;">
-              <th colspan="2" style="padding: 0.5rem;">🛠️ Typical Features</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td><strong>Dimension:</strong></td>
-              <td>${part["Dimensions"]}</td>
-            </tr>
-            <tr>
-              <td><strong>Weight:</strong></td>
-              <td>${part["Weight"]}</td>
-            </tr>
-            <tr>
-              <td><strong>Bulbs Included:</strong></td>
-              <td>${part["Bulb Included"]}</td>
-            </tr>
-            <tr>
-              <td><strong>Type of Bulb:</strong></td>
-              <td>${part["Bulb Type"] || "N/A"}</td>
-            </tr>
-            <tr>
-              <td><strong>Certification:</strong></td>
-              <td>${part["Certification"]}</td>
-            </tr>
-            <tr>
-              <td><strong>Material:</strong></td>
-              <td>${part["Material"]}</td>
-            </tr>
-            <tr>
-              <td><strong>Type of Lens:</strong></td>
-              <td>${part["Type of Lens"] || "N/A"}</td>
-            </tr>
-            <tr>
-              <td><strong>Finish:</strong></td>
-              <td>${part["Finish"]}</td>
-            </tr>
-          </tbody>
-        </table>
+        <div class="horizontal-section">
+          <div>
+            <div class="section-label">🔧 Part Information</div>
+            <table>
+              <tr>
+                <th>PartsLink Number</th>
+                <td>${part["Partslink Number"]}</td>
+              </tr>
+              <tr>
+                <th>Part Type</th>
+                <td>${part["Part Name"]}</td>
+              </tr>
+              <tr>
+                <th>Position</th>
+                <td>${part["Position"]}</td>
+              </tr>
+              <tr>
+                <th>OEM Style Replacement</th>
+                <td>Yes</td>
+              </tr>
+              <tr>
+                <th>OEM Number Reference</th>
+                <td>${part["OEM Number"]}</td>
+              </tr>
+            </table>
+          </div>
+          <div>
+            <div class="section-label">🚗 Compatible Vehicle Applications</div>
+            <table>
+              <tr>
+                <th>Make</th>
+                <td>${part["Make"]}</td>
+              </tr>
+              <tr>
+                <th>Model</th>
+                <td>${part["Model"]}</td>
+              </tr>
+              <tr>
+                <th>Years Compatible</th>
+                <td>${part["Year"]}</td>
+              </tr>
+              <tr>
+                <th>Position on Vehicle</th>
+                <td>${part["Position"]}</td>
+              </tr>
+            </table>
+          </div>
+          <div>
+            <div class="section-label">🛠️ Typical Features</div>
+            <table>
+              <tr>
+                <th>Dimensions (inches)</th>
+                <td>${part["Dimensions"]}</td>
+              </tr>
+              <tr>
+                <th>Weight (lbs)</th>
+                <td>${part["Weight"]}</td>
+              </tr>
+              <tr>
+                <th>Bulbs Included</th>
+                <td>${part["Bulb Included"]}</td>
+              </tr>
+              <tr>
+                <th>Type of Bulb</th>
+                <td>${part["Bulb Type"] || "N/A"}</td>
+              </tr>
+              <tr>
+                <th>Material</th>
+                <td>${part["Material"]}</td>
+              </tr>
+              <tr>
+                <th>Color</th>
+                <td>${part["Color"]}</td>
+              </tr>
+              <tr>
+                <th>Finish</th>
+                <td>${part["Finish"]}</td>
+              </tr>
+              <tr>
+                <th>Certification</th>
+                <td>${part["Certification"]}</td>
+              </tr>
+              <tr>
+                <th>Position</th>
+                <td>${part["Position"]}</td>
+              </tr>
+              <tr>
+                <th>Note</th>
+                <td>${part["Type of Lens"] || "Lens type or other description available"}</td>
+              </tr>
+            </table>
+          </div>
+        </div>
       `;
     }
 
