@@ -161,6 +161,10 @@
       }
       document.getElementById("vinInput").value = "";
 
+      // Clear the part result table
+      const tbody = document.querySelector("#partResult tbody");
+      tbody.innerHTML = "<tr><td colspan='13' style='text-align:center;'>Part results will appear here.</td></tr>";
+
       try {
         const res = await fetch(`https://vpic.nhtsa.dot.gov/api/vehicles/decodevinvaluesextended/${vin}?format=json`);
         const data = await res.json();
