@@ -99,7 +99,7 @@
   <div class="search-container">
     <!-- VIN Search -->
     <div class="search-group">
-      <input type="text" id="vinInput" placeholder="Enter VIN">
+      <input type="text" id="vinInput" placeholder="Enter VIN" onkeydown="if(event.key === 'Enter') searchByVIN()">
       <button onclick="searchByVIN()">
         <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16a6.471 6.471 0 0 0 4.23-1.57l.27.28v.79l5 5L20.5 19l-5-5zm-6 0C8 14 6 12 6 9.5S8 5 10.5 5 15 7 15 9.5 13 14 10.5 14z"/></svg>
       </button>
@@ -107,7 +107,7 @@
 
     <!-- OEM Search -->
     <div class="search-group">
-      <input type="text" id="oemInput" placeholder="Enter OEM">
+      <input type="text" id="oemInput" placeholder="Enter OEM" onkeydown="if(event.key === 'Enter') searchOEMPartslink('oem')">
       <button onclick="searchOEMPartslink('oem')">
         <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16a6.471 6.471 0 0 0 4.23-1.57l.27.28v.79l5 5L20.5 19l-5-5zm-6 0C8 14 6 12 6 9.5S8 5 10.5 5 15 7 15 9.5 13 14 10.5 14z"/></svg>
       </button>
@@ -115,7 +115,7 @@
 
     <!-- Partslink Search -->
     <div class="search-group">
-      <input type="text" id="partslinkInput" placeholder="Enter Partslink">
+      <input type="text" id="partslinkInput" placeholder="Enter Partslink" onkeydown="if(event.key === 'Enter') searchOEMPartslink('partslink')">
       <button onclick="searchOEMPartslink('partslink')">
         <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16a6.471 6.471 0 0 0 4.23-1.57l.27.28v.79l5 5L20.5 19l-5-5zm-6 0C8 14 6 12 6 9.5S8 5 10.5 5 15 7 15 9.5 13 14 10.5 14z"/></svg>
       </button>
@@ -132,7 +132,6 @@
         <tr>
           <th>OEM</th>
           <th>Partslink</th>
-          <th>Part Type</th>
           <th>Dimensions (in)</th>
           <th>Weight (lbs)</th>
           <th>Bulb Included</th>
@@ -143,6 +142,7 @@
           <th>Certification</th>
           <th>Position</th>
           <th>Note</th>
+          <th>Part Type</th>
         </tr>
       </thead>
       <tbody>
@@ -209,7 +209,6 @@
           row.innerHTML = `
             <td>${p.oem}</td>
             <td>${p.partslink}</td>
-            <td>${p.part_type}</td>
             <td>${p.dimensions}</td>
             <td>${p.weight}</td>
             <td>${p.bulb_included}</td>
@@ -220,6 +219,7 @@
             <td>${p.certification}</td>
             <td>${p.position}</td>
             <td>${p.note}</td>
+            <td>${p.part_type}</td>
           `;
           tbody.appendChild(row);
         });
