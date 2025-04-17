@@ -156,7 +156,7 @@
       <th>Service</th>
       <th>Tracking Number</th>
       <th>PO Reference Number</th>
-      <th>Actions</th> <!-- Actions column added -->
+      <th>Actions</th>
     </tr>
   </thead>
   <tbody></tbody>
@@ -285,7 +285,6 @@ function processUploadedData() {
         masterData[orderNum][field] = incomingValue;
       }
     }
-
   });
 
   renderTable();
@@ -322,6 +321,7 @@ function createRow(data, isDuplicate) {
   if (isDuplicate) tr.style.backgroundColor = "#ffd4d4";
 
   headers.forEach(header => {
+    if (header === "Actions") return;
     const td = document.createElement("td");
     td.contentEditable = true;
     td.textContent = header === "Order Date" ? formatDate(data[header]) : data[header] || "";
@@ -374,7 +374,10 @@ function duplicateRow(rowData) {
 function saveRow(tr) {
   const tds = tr.querySelectorAll("td");
   const newData = {};
-  headers.forEach((h, i) => newData[h] = tds[i].textContent.trim());
+  headers.forEach((h, i) => {
+    if (h === "Actions") return;
+    newData[h] = tds[i].textContent.trim();
+  });
   newData["Order Number"] = newData["Order Number"].replace("-DUP", "");
   masterData[newData["Order Number"]] = newData;
   renderTable();
@@ -384,6 +387,61 @@ function formatDate(value) {
   if (!value) return "";
   const d = new Date(value);
   return !isNaN(d) ? d.toISOString().split("T")[0] : value;
+}
+
+function exportToExcel() {
+  const filteredRows = getFilteredRows();
+  const exportData = filteredRows.map(row => {
+    const newRow = { ...row };
+    delete newRow["Actions"];
+    return newRow;
+  });
+  const worksheet = XLSX.utils.json_to_sheet(exportData);
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Sales Report");
+  XLSX.writeFile(workbook, "sales_report.xlsx");
+}
+
+function exportToCSV() {
+  const filteredRows = getFilteredRows();
+  const exportData = filteredRows.map(row => {
+    const newRow = { ...row };
+    delete newRow["Actions"];
+    return newRow;
+  });
+  const worksheet = XLSX.utils.json_to_sheet(exportData);
+  const csv = XLSX.utils.sheet_to_csv(worksheet);
+  const blob = new Blob([csv], { type: "text/csv" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "sales_report.csv";
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function exportToPDF() {
+  const filteredRows = getFilteredRows();
+  const exportData = filteredRows.map(row => {
+    return headers
+      .filter(h => h !== "Actions")
+      .map(h => row[h] || "");
+  });
+  const doc = new jspdf.jsPDF();
+  doc.autoTable({
+    head: [headers.filter(h => h !== "Actions")],
+    body: exportData
+  });
+  doc.save("sales_report.pdf");
+}
+
+function getFilteredRows() {
+  const from = document.getElementById("fromDate").value;
+  const to = document.getElementById("toDate").value;
+  return Object.values(masterData).filter(row => {
+    const orderDate = formatDate(row["Order Date"]);
+    return (!from || orderDate >= from) && (!to || orderDate <= to);
+  });
 }
 
 function resetAll() {
