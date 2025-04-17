@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Sales Report Template</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+  <style>
+    body {
+      font-family: 'Calibri', sans-serif;
+      margin: 20px;
+      background-color: #f5f5f5;
+      color: #333;
+      font-size: 14px;
+    }
+    h2 {
+      color: #666;
+      margin-bottom: 12px;
+      font-weight: bold;
+    }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      font-size: 12px;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 4px 6px;
+      text-align: left;
+    }
+    th {
+      background-color: #ddd;
+    }
+    td[contenteditable="true"] {
+      background-color: #eef;
+    }
+  </style>
+</head>
+<body>
+
+<h2>Sales Report Template</h2>
+
+<input type="file" id="fileInput" accept=".xlsx,.xls,.csv,.pdf" />
+<div id="selectAllContainer">
+  <input type="checkbox" id="selectAll" checked>
+  <label for="selectAll">Select/Unselect All</label>
+</div>
+
+<div class="checkbox-container" id="columnCheckboxes"></div>
+
+<button onclick="processUploadedData()">Upload & Process</button>
+<button onclick="resetAll()">Reset / Clear</button>
+
+<div class="date-filter-container">
+  <div class="date-filter-group">
+    <label for="fromDate">From:</label>
+    <input type="date" id="fromDate">
+    <label for="toDate">To:</label>
+    <input type="date" id="toDate">
+    <button id="applyResetButton" onclick="renderTable()">Apply Filter</button>
+    <button onclick="clearDateFilter()">Clear Filter</button>
+  </div>
+
+  <div class="export-buttons">
+    <button onclick="exportToExcel()">Export to Excel</button>
+    <button onclick="exportToCSV()">Export to CSV</button>
+    <button onclick="exportToPDF()">Export to PDF</button>
+  </div>
+</div>
+
+<div id="totalOrders"></div>
+
+<table id="reportTable">
+  <thead>
+    <tr>
+      <th>Order Date</th>
+      <th>Ship From</th>
+      <th>Order Number</th>
+      <th>Item SKU</th>
+      <th>Quantity</th>
+      <th>Custom Field 1</th>
+      <th>Custom Field 2</th>
+      <th>Custom Field 3</th>
+      <th>Order Total</th>
+      <th>Recipient</th>
+      <th>Rate</th>
+      <th>Service</th>
+      <th>Tracking Number</th>
+      <th>PO Reference Number</th>
+    </tr>
+  </thead>
+  <tbody></tbody>
+</table>
+
+<script>
+  let masterData = [];
+  const headers = [
+    "Order Date", "Ship From", "Order Number", "Item SKU", "Quantity",
+    "Custom Field 1", "Custom Field 2", "Custom Field 3", "Order Total",
+    "Recipient", "Rate", "Service", "Tracking Number", "PO Reference Number"
+  ];
+  const orderKeyAliases = ["Order Number", "Order #", "Site ID Number", "Site Order ID"];
+  let currentOrderKey = null;
+
+  document.getElementById("fileInput").addEventListener("change", handleFile);
+  document.getElementById("selectAll").addEventListener("change", function () {
+    const checkboxes = document.querySelectorAll('.column-check');
+    checkboxes.forEach(cb => cb.checked = this.checked);
+  });
+
+  function handleFile(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const ext = file.name.split('.').pop().toLowerCase();
+    if (ext === "pdf") {
+      readPDF(file);
+    } else {
+      readExcelCSV(file);
+    }
+  }
+
+  function readExcelCSV(file) {
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      const data = new Uint8Array(e.target.result);
+      const workbook = XLSX.read(data, { type: "array", cellDates: false });
+      const sheet = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], {
+        defval: "",
+        raw: false
+      });
+      setupColumnCheckboxes(Object.keys(sheet[0]), sheet);
+    };
+    reader.readAsArrayBuffer(file);
+  }
+
+  function setupColumnCheckboxes(columns, sheetData) {
+    window.tempSheetData = sheetData;
+    currentOrderKey = orderKeyAliases.find(key => columns.includes(key));
+    const container = document.getElementById("columnCheckboxes");
+    container.innerHTML = "";
+    headers.forEach(header => {
+      const isAvailable = columns.includes(header);
+      const wrapper = document.createElement("label");
+      wrapper.className = "column-check-label";
+      const checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.className = "column-check";
+      checkbox.value = header;
+      checkbox.checked = isAvailable;
+      checkbox.disabled = !isAvailable;
+      wrapper.appendChild(checkbox);
+      wrapper.append(header);
+      container.appendChild(wrapper);
+    });
+  }
+
+  function processUploadedData() {
+    if (!currentOrderKey) {
+      alert("No valid 'Order Number' column found.");
+      return;
+    }
+
+    const selectedColumns = {};
+    document.querySelectorAll(".column-check:checked").forEach(cb => {
+      selectedColumns[cb.value] = cb.value;
+    });
+
+    masterData = [];
+    const seen = new Set();
+
+    window.tempSheetData.forEach(row => {
+      const orderNum = row[currentOrderKey]?.toString().trim();
+      if (!orderNum) return;
+      const tracking = row["Tracking Number"]?.toString().trim() || "";
+      const key = `${orderNum}|${tracking}`;
+      if (seen.has(key)) return;
+      seen.add(key);
+
+      const newRow = {};
+      headers.forEach(h => newRow[h] = "");
+      newRow["Order Number"] = orderNum;
+
+      for (let field in selectedColumns) {
+        let value = row[field]?.toString().trim();
+        if (field === "Item SKU" && !value) {
+          value = row["SKU"]?.toString().trim() || "";
+        }
+        if (field === "Recipient" && !value) {
+          const first = row["Shipping First Name"] || "";
+          const last = row["Shipping Last Name"] || "";
+          value = `${first} ${last}`.trim();
+        }
+        newRow[field] = value;
+      }
+      masterData.push(newRow);
+    });
+
+    renderTable();
+  }
+
+  function renderTable() {
+    const tbody = document.querySelector("#reportTable tbody");
+    const totalDisplay = document.getElementById("totalOrders");
+    tbody.innerHTML = "";
+
+    const from = document.getElementById("fromDate").value;
+    const to = document.getElementById("toDate").value;
+
+    let totalCount = 0;
+
+    masterData.forEach(row => {
+      const orderDate = formatDate(row["Order Date"]);
+      if ((from && orderDate < from) || (to && orderDate > to)) return;
+
+      const tr = document.createElement("tr");
+      headers.forEach(header => {
+        const td = document.createElement("td");
+        let content = header === "Order Date" ? orderDate : (row[header] || "");
+        if (header === "Order Total") content = content.replace(/[^0-9.]/g, '');
+        td.textContent = content;
+        td.contentEditable = true;
+        tr.appendChild(td);
+      });
+      tbody.appendChild(tr);
+      totalCount++;
+    });
+
+    totalDisplay.textContent = `Total Orders: ${totalCount}`;
+  }
+
+  function formatDate(value) {
+    if (!value) return "";
+    const d = new Date(value);
+    return !isNaN(d) ? d.toISOString().split("T")[0] : value;
+  }
+
+  function resetAll() {
+    masterData = [];
+    document.querySelector("#reportTable tbody").innerHTML = "";
+    document.getElementById("columnCheckboxes").innerHTML = "";
+    document.getElementById("selectAll").checked = true;
+    document.getElementById("fileInput").value = "";
+    document.getElementById("fromDate").value = "";
+    document.getElementById("toDate").value = "";
+    document.getElementById("totalOrders").textContent = "";
+    currentOrderKey = null;
+  }
+
+  function clearDateFilter() {
+    document.getElementById("fromDate").value = "";
+    document.getElementById("toDate").value = "";
+    renderTable();
+  }
+</script>
+
+</body>
+</html>
